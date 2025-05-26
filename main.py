@@ -1,6 +1,6 @@
 import tkinter as tk
-from .gui.main_window import HiveSimulationApp
-from .simulation.core import HiveSimulation
+from gui.main_window import HiveSimulationApp
+from simulation.core import HiveSimulation
 
 def main():
     root = tk.Tk()
