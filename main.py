@@ -1,38 +1,18 @@
-import threading
-from simulation import HiveSimulation
+import tkinter as tk
+from .gui.main_window import HiveSimulationApp
+from .simulation.core import HiveSimulation
 
 def main():
+    root = tk.Tk()
+    root.title("Hive Simulation")
+    
+    # Create simulation core
     simulation = HiveSimulation()
     
-    def run_sim():
-        simulation.run_simulation(max_cycles=100)
+    # Create GUI app
+    app = HiveSimulationApp(root, simulation)
     
-    sim_thread = threading.Thread(target=run_sim)
-    sim_thread.start()
-    
-    try:
-        while sim_thread.is_alive():
-            cmd = input("\nEnter command (s: stats, q: quit): ").strip().lower()
-            if cmd == 's':
-                stats = simulation.get_statistics()
-                print("\nCurrent Statistics:")
-                for key, value in stats.items():
-                    if isinstance(value, dict):
-                        print(f"{key}:")
-                        for k, v in value.items():
-                            print(f"  {k}: {v}")
-                    else:
-                        print(f"{key}: {value}")
-            elif cmd == 'q':
-                print("Stopping simulation...")
-                simulation.running = False
-                break
-    except KeyboardInterrupt:
-        print("\nStopping simulation...")
-        simulation.running = False
-    
-    sim_thread.join()
-    print("Simulation ended.")
+    root.mainloop()
 
 if __name__ == "__main__":
     main()
