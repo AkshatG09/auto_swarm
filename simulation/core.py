@@ -21,6 +21,7 @@ class HiveSimulation:
         for _ in range(self.hive_state.population[CasteType.QUEEN]):
             self.organisms[organism_id] = Queen(organism_id, age=random.randint(20, 40))
             organism_id += 1
+
             
         for _ in range(self.hive_state.population[CasteType.WORKER]):
             self.organisms[organism_id] = Worker(organism_id, age=random.randint(0, 15))
@@ -128,6 +129,75 @@ class HiveSimulation:
     
     def simulate_cycle(self):
         print(f"\n=== CYCLE {self.cycle_count} ===")
+        
+        # Check for collapse conditions
+        if self.hive_state.structural_integrity <= 0:
+            print("🏗️💥 CATASTROPHIC COLLAPSE: Hive structure has completely failed (0% integrity)")
+            print("The entire colony has been crushed under the collapsing structure.")
+            return False
+            
+        if self.hive_state.waste_level >= 200:
+            print("☠️ TOXIC OVERLOAD: Waste levels have reached critical mass (200+)")
+            print("The colony has been overwhelmed by toxic waste buildup.")
+            return False
+        
+        # Check for vulnerable colony condition (no breeders and no soldiers during threat)
+        breeders = self._get_organisms_by_caste(CasteType.BREEDER)
+        soldiers = self._get_organisms_by_caste(CasteType.SOLDIER)
+        
+        if len(breeders) == 0 and len(soldiers) == 0 and self.hive_state.threat_level != ThreatLevel.NONE:
+            # Calculate death chance based on threat level
+            # LOW: 10% per cycle, MEDIUM: 20%, HIGH: 30%, EXISTENTIAL: 40%
+            base_death_chance = 0.1 * self.hive_state.threat_level.value
+            
+            # Kill organisms based on threat level
+            dead_organisms = []
+            for org_id, organism in self.organisms.items():
+                if organism.active and random.random() < base_death_chance:
+                    organism.active = False
+                    dead_organisms.append(org_id)
+            
+            if dead_organisms:
+                print(f"⚠️ DEFENSE CRISIS: No breeders or soldiers during threat level {self.hive_state.threat_level.name}")
+                
+                for org_id in dead_organisms:
+                    org_type = self.organisms[org_id].caste_type
+                    self.hive_state.population[org_type] -= 1
+                    self.hive_state.total_deaths += 1
+                    print(f"💀 {org_type.value}-{org_id} has perished due to undefended threat")
+                    del self.organisms[org_id]
+            
+            # If all organisms are dead, colony collapses
+            if sum(self.hive_state.population.values()) == 0:
+                print("💀 COLONY EXTINCTION: All organisms have perished due to undefended threats")
+                return False
+        
+        # If there are no breeders and there's a threat, colony dies based on threat level
+        breeders = self._get_organisms_by_caste(CasteType.BREEDER)
+        if len(breeders) == 0 and self.hive_state.threat_level != ThreatLevel.NONE:
+            threat_multiplier = self.hive_state.threat_level.value
+            death_chance = 0.2 * threat_multiplier  # 20% chance per threat level
+            
+            # Kill organisms based on threat level
+            dead_organisms = []
+            for org_id, organism in self.organisms.items():
+                if organism.active and random.random() < death_chance:
+                    organism.active = False
+                    dead_organisms.append(org_id)
+                    self.hive_state.population[organism.caste_type] -= 1
+                    self.hive_state.total_deaths += 1
+                    
+            if dead_organisms:
+                print(f"⚠️ BREEDER EXTINCTION EVENT: No breeders to maintain the population during threat level {self.hive_state.threat_level.name}")
+                print(f"💀 {len(dead_organisms)} organisms died in this cycle due to the crisis")
+                
+                for org_id in dead_organisms:
+                    del self.organisms[org_id]
+                
+                # If all organisms are dead, colony collapses
+                if sum(self.hive_state.population.values()) == 0:
+                    print("💀 COLONY EXTINCTION: All organisms have perished due to the breeder crisis")
+                    return False
         
         deaths = self._age_all_organisms()
         if deaths:
