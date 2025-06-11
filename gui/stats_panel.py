@@ -21,7 +21,7 @@ class StatsPanel(ttk.LabelFrame):
         self.add_stat_row(resources_frame, "Structure", "0%", "structure")
         self.add_stat_row(resources_frame, "Threat Level", "None", "threat")
         
-        # Population stats in population_frame
+        # Population stats in population_frame 
         self.add_stat_row(population_frame, "Total Population", "0")
         self.add_stat_row(population_frame, "Queens", "0", "queen")
         self.add_stat_row(population_frame, "Workers", "0", "worker")
@@ -29,7 +29,6 @@ class StatsPanel(ttk.LabelFrame):
         self.add_stat_row(population_frame, "Cleaners", "0", "cleaner")
         self.add_stat_row(population_frame, "Breeders", "0", "breeder")
         self.add_stat_row(population_frame, "Bio-Architects", "0", "architect")
-        self.add_stat_row(population_frame, "Cerebrals", "0", "cerebral")
         
         # History in history_frame
         self.add_stat_row(history_frame, "Current Cycle", "0")

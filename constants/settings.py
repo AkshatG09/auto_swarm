@@ -7,8 +7,7 @@ LIFESPANS = {
     CasteType.SOLDIER: 20,
     CasteType.CLEANER: 30,
     CasteType.BREEDER: 35,
-    CasteType.BIO_ARCHITECT: 40,
-    CasteType.CEREBRAL: 50
+    CasteType.BIO_ARCHITECT: 40
 }
 
 # Initial population counts
@@ -18,8 +17,7 @@ INITIAL_POPULATION = {
     CasteType.SOLDIER: 5,
     CasteType.CLEANER: 3,
     CasteType.BREEDER: 2,
-    CasteType.BIO_ARCHITECT: 2,
-    CasteType.CEREBRAL: 0
+    CasteType.BIO_ARCHITECT: 2
 }
 
 # Initial hive state

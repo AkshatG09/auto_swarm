@@ -19,8 +19,7 @@ class HiveVisualization(ttk.LabelFrame):
             "Soldier": "🛡️",
             "Cleaner": "🧹",
             "Breeder": "❤️",
-            "Bio-Architect": "🏗️",
-            "Cerebral": "🧠"
+            "Bio-Architect": "🏗️"
         }
         
         self.status_colors = {

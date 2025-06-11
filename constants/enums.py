@@ -14,4 +14,3 @@ class CasteType(Enum):
     CLEANER = "Cleaner"
     BREEDER = "Breeder"
     BIO_ARCHITECT = "Bio-Architect"
-    CEREBRAL = "Cerebral"

@@ -129,36 +129,64 @@ class HiveSimulation:
     
     def simulate_cycle(self):
         print(f"\n=== CYCLE {self.cycle_count} ===")
-        
-        # Check for collapse conditions
+          # Check for collapse conditions with grace periods and chances for recovery
         if self.hive_state.structural_integrity <= 0:
-            print("🏗️💥 CATASTROPHIC COLLAPSE: Hive structure has completely failed (0% integrity)")
-            print("The entire colony has been crushed under the collapsing structure.")
-            return False
+            if not hasattr(self, '_structure_critical_cycles'):
+                self._structure_critical_cycles = 0
+            self._structure_critical_cycles += 1
+            
+            # Give 3 cycles for bio-architects to potentially fix it
+            if self._structure_critical_cycles >= 3:
+                print("🏗️💥 CATASTROPHIC COLLAPSE: Hive structure has completely failed (0% integrity)")
+                print("The entire colony has been crushed under the collapsing structure.")
+                return False
+            else:
+                print(f"⚠️ IMMINENT COLLAPSE: Structure at 0% - {3 - self._structure_critical_cycles} cycles until collapse!")
+        else:
+            self._structure_critical_cycles = 0
             
         if self.hive_state.waste_level >= 200:
-            print("☠️ TOXIC OVERLOAD: Waste levels have reached critical mass (200+)")
-            print("The colony has been overwhelmed by toxic waste buildup.")
-            return False
-        
-        # Check for vulnerable colony condition (no breeders and no soldiers during threat)
+            if not hasattr(self, '_waste_critical_cycles'):
+                self._waste_critical_cycles = 0
+            self._waste_critical_cycles += 1
+            
+            # Give 5 cycles for cleaners to potentially fix it
+            if self._waste_critical_cycles >= 5:
+                print("☠️ TOXIC OVERLOAD: Waste levels have reached critical mass (200+)")
+                print("The colony has been overwhelmed by toxic waste buildup.")
+                return False
+            else:
+                print(f"⚠️ CRITICAL WASTE: Levels at {self.hive_state.waste_level} - {5 - self._waste_critical_cycles} cycles until toxic collapse!")
+          # Check for vulnerable colony condition (no breeders and no soldiers during threat)
         breeders = self._get_organisms_by_caste(CasteType.BREEDER)
         soldiers = self._get_organisms_by_caste(CasteType.SOLDIER)
         
         if len(breeders) == 0 and len(soldiers) == 0 and self.hive_state.threat_level != ThreatLevel.NONE:
-            # Calculate death chance based on threat level
-            # LOW: 10% per cycle, MEDIUM: 20%, HIGH: 30%, EXISTENTIAL: 40%
-            base_death_chance = 0.1 * self.hive_state.threat_level.value
+            if not hasattr(self, '_vulnerable_cycles'):
+                self._vulnerable_cycles = 0
+            self._vulnerable_cycles += 1
+            
+            # Calculate death chance based on threat level and time without defense
+            # Base rates: LOW: 5%, MEDIUM: 10%, HIGH: 15%, EXISTENTIAL: 20%
+            base_death_chance = 0.05 * self.hive_state.threat_level.value
+            
+            # Increase chance based on how long the colony has been vulnerable
+            death_chance = min(0.75, base_death_chance + (self._vulnerable_cycles * 0.02))
             
             # Kill organisms based on threat level
             dead_organisms = []
             for org_id, organism in self.organisms.items():
-                if organism.active and random.random() < base_death_chance:
+                if organism.active and random.random() < death_chance:
+                    # Queens and workers have a slightly better chance of survival
+                    if organism.caste_type in [CasteType.QUEEN, CasteType.WORKER]:
+                        if random.random() > 0.3:  # 70% chance to survive this round
+                            continue
                     organism.active = False
                     dead_organisms.append(org_id)
             
             if dead_organisms:
                 print(f"⚠️ DEFENSE CRISIS: No breeders or soldiers during threat level {self.hive_state.threat_level.name}")
+                print(f"⏳ Cycles without defense: {self._vulnerable_cycles} (Death chance: {death_chance:.1%})")
                 
                 for org_id in dead_organisms:
                     org_type = self.organisms[org_id].caste_type
@@ -171,6 +199,9 @@ class HiveSimulation:
             if sum(self.hive_state.population.values()) == 0:
                 print("💀 COLONY EXTINCTION: All organisms have perished due to undefended threats")
                 return False
+        else:
+            # Reset vulnerable cycles if we have either breeders or soldiers
+            self._vulnerable_cycles = 0
         
         # If there are no breeders and there's a threat, colony dies based on threat level
         breeders = self._get_organisms_by_caste(CasteType.BREEDER)
@@ -227,25 +258,7 @@ class HiveSimulation:
             all_priorities.update(priorities)
             instructions = queen.generate_genetic_instructions(priorities)
             genetic_instructions.update(instructions)
-        
-        if self.hive_state.threat_level == ThreatLevel.EXISTENTIAL:
-            cerebrals = self._get_organisms_by_caste(CasteType.CEREBRAL)
-            if not cerebrals:
-                print("🧠 EMERGENCY: Spawning Cerebral Caste for existential threat!")
-                cerebral = CerebralCaste(self.next_organism_id)
-                cerebral.birth_cycle = self.cycle_count
-                self.organisms[self.next_organism_id] = cerebral
-                self.hive_state.population[CasteType.CEREBRAL] = 1
-                self.hive_state.total_births += 1
-                self.next_organism_id += 1
-            
-            for cerebral in self._get_organisms_by_caste(CasteType.CEREBRAL):
-                strategies = cerebral.analyze_existential_threat(self.hive_state)
-                if 'emergency_spawn' in strategies:
-                    genetic_instructions.update(strategies['emergency_spawn'])
-                print(f"🧠 Cerebral strategies: {strategies}")
-        
-        workers = self._get_organisms_by_caste(CasteType.WORKER)
+            workers = self._get_organisms_by_caste(CasteType.WORKER)
         total_food_gathered = 0
         total_waste_generated = 0
         

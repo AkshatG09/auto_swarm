@@ -23,13 +23,12 @@ class HiveSimulationApp:
         style.configure("threat.TLabel", foreground="red")
         
         # Population-related styles
-        style.configure("queen.TLabel", foreground="purple")
         style.configure("worker.TLabel", foreground="brown")
+        style.configure("queen.TLabel", foreground="purple")
         style.configure("soldier.TLabel", foreground="red")
         style.configure("cleaner.TLabel", foreground="green")
         style.configure("breeder.TLabel", foreground="pink")
         style.configure("architect.TLabel", foreground="blue")
-        style.configure("cerebral.TLabel", foreground="purple")
         
         # General styling
         style.configure("TFrame", background="#f0f0f0")
@@ -89,8 +88,7 @@ class HiveSimulationApp:
                     
                 self.stats_panel.update_stats()
                 self.visualization.update_visualization()
-                
-                # Dynamic cycle speed based on control panel setting
+                  # Convert cycles per second to milliseconds between cycles
                 cycle_speed = int(1000 / self.control_panel.speed_scale.get())
                 self.root.after(cycle_speed, self.run_simulation_cycle)
             except Exception as e:

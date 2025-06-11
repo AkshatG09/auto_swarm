@@ -22,7 +22,7 @@ class ControlPanel(ttk.Frame):
         # Speed control
         self.speed_label = ttk.Label(self, text="Speed:")
         self.speed_label.grid(row=1, column=0, padx=5, pady=5)
-        
-        self.speed_scale = ttk.Scale(self, from_=1, to=10, orient=tk.HORIZONTAL)
-        self.speed_scale.set(5)
+          # Speed scale: 0.5 to 5 cycles per second
+        self.speed_scale = ttk.Scale(self, from_=0.5, to=5.0, orient=tk.HORIZONTAL)
+        self.speed_scale.set(1.0)  # Default to 1 cycle per second
         self.speed_scale.grid(row=1, column=1, columnspan=2, padx=5, pady=5)
