@@ -1,7 +1,7 @@
 import random
 import time
 from typing import Dict, List
-from entities import HiveState, Organism, Queen, Worker, Soldier, Cleaner, Breeder, BioArchitect, CerebralCaste
+from entities import HiveState, Organism, Queen, Worker, Soldier, Cleaner, Breeder, BioArchitect
 from constants.enums import CasteType, ThreatLevel
 from constants.settings import INITIAL_POPULATION, INITIAL_HIVE_STATE
 

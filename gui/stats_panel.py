@@ -21,14 +21,14 @@ class StatsPanel(ttk.LabelFrame):
         self.add_stat_row(resources_frame, "Structure", "0%", "structure")
         self.add_stat_row(resources_frame, "Threat Level", "None", "threat")
         
-        # Population stats in population_frame 
+        # Population stats in population_frame
         self.add_stat_row(population_frame, "Total Population", "0")
-        self.add_stat_row(population_frame, "Queens", "0", "queen")
-        self.add_stat_row(population_frame, "Workers", "0", "worker")
-        self.add_stat_row(population_frame, "Soldiers", "0", "soldier")
-        self.add_stat_row(population_frame, "Cleaners", "0", "cleaner")
-        self.add_stat_row(population_frame, "Breeders", "0", "breeder")
-        self.add_stat_row(population_frame, "Bio-Architects", "0", "architect")
+        self.add_stat_row(population_frame, "Queen Population", "0", "queen")
+        self.add_stat_row(population_frame, "Worker Population", "0", "worker")
+        self.add_stat_row(population_frame, "Soldier Population", "0", "soldier")
+        self.add_stat_row(population_frame, "Cleaner Population", "0", "cleaner")
+        self.add_stat_row(population_frame, "Breeder Population", "0", "breeder")
+        self.add_stat_row(population_frame, "Bio-Architect Population", "0", "architect")
         
         # History in history_frame
         self.add_stat_row(history_frame, "Current Cycle", "0")
@@ -39,10 +39,9 @@ class StatsPanel(ttk.LabelFrame):
         self.status_label = ttk.Label(status_frame, text="Colony Status: Healthy", font=("Arial", 10, "bold"))
         self.status_label.pack(pady=5)
         
-        self.warnings_text = tk.Text(status_frame, height=4, width=30, wrap=tk.WORD, 
-                                   font=("Arial", 9))
+        self.warnings_text = tk.Text(status_frame, height=4, width=30, wrap=tk.WORD, font=("Arial", 9))
         self.warnings_text.pack(pady=5)
-        
+    
     def create_section(self, title):
         frame = ttk.LabelFrame(self, text=title, padding=5)
         frame.pack(fill=tk.X, padx=5, pady=5)
@@ -64,7 +63,7 @@ class StatsPanel(ttk.LabelFrame):
         value_lbl.pack(side=tk.RIGHT)
         
         self.stats_vars[label] = var
-    
+      
     def update_stats(self):
         stats = self.simulation.get_statistics()
         
@@ -79,9 +78,18 @@ class StatsPanel(ttk.LabelFrame):
         self.stats_vars["Total Deaths"].set(stats['total_deaths'])
         
         # Update population by caste
-        for caste, count in stats['population_by_caste'].items():
-            if caste in self.stats_vars:
-                self.stats_vars[caste].set(count)
+        population_map = {
+            "Queen": "Queen Population",
+            "Worker": "Worker Population",
+            "Soldier": "Soldier Population",
+            "Cleaner": "Cleaner Population",
+            "Breeder": "Breeder Population",
+            "Bio-Architect": "Bio-Architect Population"
+        }
+        
+        for caste_name, count in stats['population_by_caste'].items():
+            if caste_name in population_map:
+                self.stats_vars[population_map[caste_name]].set(count)
         
         # Update status and warnings
         self.update_status_and_warnings(stats)
